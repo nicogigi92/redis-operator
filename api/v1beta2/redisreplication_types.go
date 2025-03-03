@@ -10,6 +10,7 @@ type RedisReplicationSpec struct {
 	Size                          *int32                            `json:"clusterSize"`
 	KubernetesConfig              KubernetesConfig                  `json:"kubernetesConfig"`
 	RedisExporter                 *RedisExporter                    `json:"redisExporter,omitempty"`
+	RedisReplicationConfig        *RedisReplicationConfig           `json:"redisReplicationConfig,omitempty"`
 	RedisConfig                   *RedisConfig                      `json:"redisConfig,omitempty"`
 	Storage                       *Storage                          `json:"storage,omitempty"`
 	NodeSelector                  map[string]string                 `json:"nodeSelector,omitempty"`
@@ -34,6 +35,10 @@ type RedisReplicationSpec struct {
 func (cr *RedisReplicationSpec) GetReplicationCounts(t string) int32 {
 	replica := cr.Size
 	return *replica
+}
+
+type RedisReplicationConfig struct {
+	common.RedisReplicationConfig `json:",inline"`
 }
 
 // RedisStatus defines the observed state of Redis

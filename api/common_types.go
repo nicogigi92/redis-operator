@@ -198,3 +198,11 @@ type RedisSentinelConfig struct {
 	// +kubebuilder:default:="no"
 	AnnounceHostnames string `json:"announceHostnames,omitempty"`
 }
+
+// +k8s:deepcopy-gen=true
+type RedisReplicationConfig struct {
+	// +kubebuilder:default:="no"
+	ResolveHostnames string `json:"resolveHostnames,omitempty"`
+	// +kubebuilder:default:="no"
+	AnnounceHostnames string `json:"announceHostnames,omitempty"`
+}

@@ -5,6 +5,7 @@ import (
 
 	redisv1beta2 "github.com/OT-CONTAINER-KIT/redis-operator/api/v1beta2"
 	"github.com/OT-CONTAINER-KIT/redis-operator/pkg/util"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/utils/ptr"
@@ -132,12 +133,13 @@ func generateRedisReplicationContainerParams(cr *redisv1beta2.RedisReplication) 
 	trueProperty := true
 	falseProperty := false
 	containerProp := containerParameters{
-		Role:            "replication",
-		Image:           cr.Spec.KubernetesConfig.Image,
-		ImagePullPolicy: cr.Spec.KubernetesConfig.ImagePullPolicy,
-		Resources:       cr.Spec.KubernetesConfig.Resources,
-		SecurityContext: cr.Spec.SecurityContext,
-		Port:            ptr.To(redisPort),
+		Role:                  "replication",
+		Image:                 cr.Spec.KubernetesConfig.Image,
+		ImagePullPolicy:       cr.Spec.KubernetesConfig.ImagePullPolicy,
+		Resources:             cr.Spec.KubernetesConfig.Resources,
+		SecurityContext:       cr.Spec.SecurityContext,
+		Port:                  ptr.To(redisPort),
+		AdditionalEnvVariable: getReplicationEnvVariable(cr),
 	}
 	if cr.Spec.EnvVars != nil {
 		containerProp.EnvVars = cr.Spec.EnvVars
@@ -182,6 +184,23 @@ func generateRedisReplicationContainerParams(cr *redisv1beta2.RedisReplication) 
 		containerProp.ACLConfig = cr.Spec.ACL
 	}
 	return containerProp
+}
+
+func getReplicationEnvVariable(cr *redisv1beta2.RedisReplication) *[]corev1.EnvVar {
+	if cr.Spec.RedisReplicationConfig == nil {
+		return &[]corev1.EnvVar{}
+	}
+	envVar := &[]corev1.EnvVar{
+		{
+			Name:  "RESOLVE_HOSTNAMES",
+			Value: cr.Spec.RedisReplicationConfig.ResolveHostnames,
+		},
+		{
+			Name:  "ANNOUNCE_HOSTNAMES",
+			Value: cr.Spec.RedisReplicationConfig.AnnounceHostnames,
+		},
+	}
+	return envVar
 }
 
 // generateRedisReplicationInitContainerParams generates Redis Replication initcontainer information
